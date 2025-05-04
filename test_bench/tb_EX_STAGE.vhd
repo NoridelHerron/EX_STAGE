@@ -1,14 +1,12 @@
 ----------------------------------------------------------------------------------
 -- Author      : Noridel Herron
--- Date        : [Your Date]
+-- Date        : 5/4/2025
 -- Description : Test bench for EX_STAGE.vhd
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use IEEE.MATH_REAL.ALL;
-
-use work.reusable_function.all;
 
 entity tb_EX_STAGE is
 end tb_EX_STAGE;
