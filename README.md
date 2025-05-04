@@ -1,7 +1,7 @@
 # EX_STAGE
 
 ## Overview
-The EX_STAGE module represents the Execution stage of a 5-stage pipelined RISC-V CPU. It performs all arithmetic and logic operations using an ALU and passes the results, flags, and control signals to the MEM stage. It registers all inputs and outputs to support stable pipeline progression, forwarding, and hazard detection in future extensions.
+The **EX_STAGE** module represents the Execution stage of a 5-stage pipelined RISC-V CPU. It performs all arithmetic and logic operations using an ALU and passes the results, flags, and control signals to the MEM stage. It registers all inputs and outputs to support stable pipeline progression, forwarding, and hazard detection in future extensions.
 
 ## Features
 - Interfaces directly with the ALU for performing R-type and I-type operations
@@ -11,12 +11,19 @@ The EX_STAGE module represents the Execution stage of a 5-stage pipelined RISC-V
 - Prepares data and control handoff to the MEM stage through EX/MEM pipeline registers
 
 ## Project Structure
-EX_STAGE/
+**EX_STAGE**/
 - images/
     - tcl_5000cases.png
+    - tcl_1000cases.png
+    - wave_1000cases.png
     - wave_5000cases.png
 - src/
     - EX_STAGE.vhd
+    - adder_32bits.vhd
+    - ALU_32bits.vhd
+    - FullAdder.vhd
+    - FullSubtractor.vhd
+    - sub_32bits.vhd
 - test_benches/
     - tb_EX_STAGE.vhd
 - .gitignore/
@@ -39,11 +46,13 @@ The testbench uses randomized testing to evaluate all supported ALU operations o
 
 ## Simulation Results
 ### Tcl Console Output
+![Tcl Output – 5000 Cases](images/tcl_1000cases.png)  
 ![Tcl Output – 5000 Cases](images/tcl_5000cases.png)  
-*5000 randomized tests passed with no failures. All control and data signals behaved as expected.
+*1000 and 5000 randomized tests passed with no failures. All control and data signals behaved as expected.*
 ### Waveform Example
+![Waveform Example](images/wave_1000cases.png)  
 ![Waveform Example](images/wave_5000cases.png)  
-*Waveform shows result_out, flag outputs, and correct instruction/control signal propagation from EX to MEM stage.
+*Waveform shows result_out, flag outputs, and correct instruction/control signal propagation from EX to MEM stage.*
 
 ## How to Run
 1. Launch **Vivado 2019** or newer

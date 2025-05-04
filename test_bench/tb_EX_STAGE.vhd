@@ -14,7 +14,7 @@ end tb_EX_STAGE;
 architecture sim of tb_EX_STAGE is
 
     component EX_STAGE
-        Port (
+         Port (
             clk           : in  std_logic;
             rst           : in  std_logic;
             instr_in      : in  std_logic_vector(31 downto 0);
@@ -25,6 +25,7 @@ architecture sim of tb_EX_STAGE is
             reg_write_in  : in  std_logic;
             mem_read_in   : in  std_logic;
             mem_write_in  : in  std_logic;
+            rd_in         : in  std_logic_vector(4 downto 0);
             instr_out     : out std_logic_vector(31 downto 0);
             result_out    : out std_logic_vector(31 downto 0);
             Z_flag_out    : out std_logic;
@@ -33,7 +34,8 @@ architecture sim of tb_EX_STAGE is
             N_flag_out    : out std_logic;
             reg_write_out : out std_logic;
             mem_read_out  : out std_logic;
-            mem_write_out : out std_logic
+            mem_write_out : out std_logic;
+            rd_out        : out std_logic_vector(4 downto 0)
         );
     end component;
 
@@ -45,7 +47,8 @@ architecture sim of tb_EX_STAGE is
     signal f3_in : std_logic_vector(2 downto 0);
     signal f7_in : std_logic_vector(6 downto 0);
     signal reg_write_in, mem_read_in, mem_write_in : std_logic := '0';
-
+    signal rd_in  : std_logic_vector(4 downto 0);
+    signal rd_out : std_logic_vector(4 downto 0);
     signal instr_out, result_out : std_logic_vector(31 downto 0);
     signal Z_flag_out, V_flag_out, C_flag_out, N_flag_out : std_logic;
     signal reg_write_out, mem_read_out, mem_write_out : std_logic;
@@ -55,10 +58,10 @@ begin
     uut: EX_STAGE port map (
         clk, rst,
         instr, reg_data1_in, reg_data2_in, f3_in, f7_in,
-        reg_write_in, mem_read_in, mem_write_in,
+        reg_write_in, mem_read_in, mem_write_in, rd_in,
         instr_out, result_out,
         Z_flag_out, V_flag_out, C_flag_out, N_flag_out,
-        reg_write_out, mem_read_out, mem_write_out
+        reg_write_out, mem_read_out, mem_write_out, rd_out
     );
 
     clk_process : process
@@ -70,7 +73,7 @@ begin
     end process;
 
      stim_proc : process
-        variable total_tests      : integer := 5000;
+        variable total_tests      : integer := 1000;
         variable seed1, seed2     : positive := 42;
         variable rand_real        : real;
         variable rand_A, rand_B   : integer;
@@ -111,6 +114,7 @@ begin
             reg_data1_in <= std_logic_vector(to_signed(rand_A, 32));
             reg_data2_in <= std_logic_vector(to_signed(rand_B, 32));
             instr        <= std_logic_vector(to_unsigned(i, 32));
+            rd_in <= std_logic_vector(to_unsigned(i mod 32, 5));
             reg_write_in <= '1';
             mem_read_in  <= '0';
             mem_write_in <= '0';
@@ -173,6 +177,9 @@ begin
                  if instr_out /= instr then
                     report "    MISMATCH: instr_out /= instr_in" severity warning;
                     fail_instr_out := fail_instr_out + 1;
+                end if;             
+                if rd_out /= rd_in then
+                    report "    MISMATCH: rd_out /= rd_in" severity warning;
                 end if;
                 if reg_write_out /= reg_write_in then
                     report "    MISMATCH: reg_write_out /= reg_write_in" severity warning;

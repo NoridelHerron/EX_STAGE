@@ -1,6 +1,6 @@
-----------------------------------------------------------------------------------
+---------------------------------------------------------------------------------- 
 -- Author      : Noridel Herron
--- Date        : [Your Date]
+-- Date        : 5/4/25
 -- Description : Execution (EX) Stage with EX/MEM pipeline register
 --               - Registers all inputs for stability and forwarding
 --               - Supports future hazard detection and instruction tracing
@@ -23,7 +23,8 @@ entity EX_STAGE is
         f7_in         : in  std_logic_vector(6 downto 0);
         reg_write_in  : in  std_logic;
         mem_read_in   : in  std_logic;
-        mem_write_in  : in  std_logic;     
+        mem_write_in  : in  std_logic;
+        rd_in         : in  std_logic_vector(4 downto 0);
 
         -- Outputs to MEM stage
         instr_out     : out std_logic_vector(31 downto 0);
@@ -34,7 +35,8 @@ entity EX_STAGE is
         N_flag_out    : out std_logic;
         reg_write_out : out std_logic;
         mem_read_out  : out std_logic;
-        mem_write_out : out std_logic     
+        mem_write_out : out std_logic;
+        rd_out        : out std_logic_vector(4 downto 0)
     );
 end EX_STAGE;
 
@@ -64,6 +66,7 @@ architecture behavior of EX_STAGE is
     signal reg_write_reg  : std_logic;
     signal mem_read_reg   : std_logic;
     signal mem_write_reg  : std_logic;
+    signal rd_reg         : std_logic_vector(4 downto 0);
 
     -- ALU wires
     signal alu_result     : std_logic_vector(31 downto 0);
@@ -76,7 +79,10 @@ architecture behavior of EX_STAGE is
 begin
 
     -- ALU instance
-    alu_inst : ALU port map (reg_data1_in, reg_data2_in, Ci_Bi, f3_in, f7_in, alu_result, Z_flag_wire, V_flag_wire, C_flag_wire, N_flag_wire);
+    alu_inst : ALU port map (
+        reg_data1_in, reg_data2_in, Ci_Bi, f3_in, f7_in, 
+        alu_result, Z_flag_wire, V_flag_wire, C_flag_wire, N_flag_wire
+    );
 
     -- Pipeline register for EX/MEM
     process(clk, rst)
@@ -91,7 +97,8 @@ begin
             reg_write_reg  <= '0';
             mem_read_reg   <= '0';
             mem_write_reg  <= '0';
-           
+            rd_reg         <= (others => '0');
+
         elsif rising_edge(clk) then
             instr_reg      <= instr_in;
             result_reg     <= alu_result;
@@ -101,7 +108,8 @@ begin
             N_flag_reg     <= N_flag_wire;
             reg_write_reg  <= reg_write_in;
             mem_read_reg   <= mem_read_in;
-            mem_write_reg  <= mem_write_in;          
+            mem_write_reg  <= mem_write_in;
+            rd_reg         <= rd_in;
         end if;
     end process;
 
@@ -115,5 +123,6 @@ begin
     reg_write_out <= reg_write_reg;
     mem_read_out  <= mem_read_reg;
     mem_write_out <= mem_write_reg;
+    rd_out        <= rd_reg;
 
 end behavior;
