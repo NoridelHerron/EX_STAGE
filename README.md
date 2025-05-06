@@ -43,6 +43,7 @@ The testbench uses randomized testing to evaluate all supported ALU operations o
 - Improved understanding of condition flag handling and ALU operation decoding
 - Applied effective testbench strategies using randomized and edge-case generation
 - Reinforced the importance of modular design for future extensions (hazard detection, forwarding, etc.)
+- Learned the importance of passing the signal through each stage to maintain the pipeline integrity.
 
 ## Simulation Results
 ### Tcl Console Output
