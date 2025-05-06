@@ -16,8 +16,7 @@ architecture sim of tb_EX_STAGE is
     component EX_STAGE
          Port (
             clk           : in  std_logic;
-            rst           : in  std_logic;
-            instr_in      : in  std_logic_vector(31 downto 0);
+            rst           : in  std_logic;           
             reg_data1_in  : in  std_logic_vector(31 downto 0);
             reg_data2_in  : in  std_logic_vector(31 downto 0);
             f3_in         : in  std_logic_vector(2 downto 0);
@@ -25,8 +24,7 @@ architecture sim of tb_EX_STAGE is
             reg_write_in  : in  std_logic;
             mem_read_in   : in  std_logic;
             mem_write_in  : in  std_logic;
-            rd_in         : in  std_logic_vector(4 downto 0);
-            instr_out     : out std_logic_vector(31 downto 0);
+            rd_in         : in  std_logic_vector(4 downto 0);        
             result_out    : out std_logic_vector(31 downto 0);
             Z_flag_out    : out std_logic;
             V_flag_out    : out std_logic;
@@ -41,25 +39,22 @@ architecture sim of tb_EX_STAGE is
 
     signal clk, rst : std_logic := '0';
     constant clk_period : time := 10 ns;
-
-    signal instr : std_logic_vector(31 downto 0);
+   
     signal reg_data1_in, reg_data2_in : std_logic_vector(31 downto 0);
     signal f3_in : std_logic_vector(2 downto 0);
     signal f7_in : std_logic_vector(6 downto 0);
     signal reg_write_in, mem_read_in, mem_write_in : std_logic := '0';
     signal rd_in  : std_logic_vector(4 downto 0);
     signal rd_out : std_logic_vector(4 downto 0);
-    signal instr_out, result_out : std_logic_vector(31 downto 0);
+    signal result_out : std_logic_vector(31 downto 0);
     signal Z_flag_out, V_flag_out, C_flag_out, N_flag_out : std_logic;
     signal reg_write_out, mem_read_out, mem_write_out : std_logic;
 
 begin
 
     uut: EX_STAGE port map (
-        clk, rst,
-        instr, reg_data1_in, reg_data2_in, f3_in, f7_in,
-        reg_write_in, mem_read_in, mem_write_in, rd_in,
-        instr_out, result_out,
+        clk, rst, reg_data1_in, reg_data2_in, f3_in, f7_in,
+        reg_write_in, mem_read_in, mem_write_in, rd_in, result_out,
         Z_flag_out, V_flag_out, C_flag_out, N_flag_out,
         reg_write_out, mem_read_out, mem_write_out, rd_out
     );
@@ -73,7 +68,7 @@ begin
     end process;
 
      stim_proc : process
-        variable total_tests      : integer := 1000;
+        variable total_tests      : integer := 5000;
         variable seed1, seed2     : positive := 42;
         variable rand_real        : real;
         variable rand_A, rand_B   : integer;
@@ -83,7 +78,7 @@ begin
         variable pass_count, fail_count : integer := 0;
         variable fail_add, fail_sub, fail_sll, fail_slt, fail_sltu : integer := 0;
         variable fail_xor, fail_srl, fail_sra, fail_or, fail_and : integer := 0;
-        variable fail_instr_out, fail_reg_write_out, fail_mem_read_out, fail_mem_write_out : integer := 0;
+        variable fail_reg_write_out, fail_mem_read_out, fail_mem_write_out : integer := 0;
     begin
         rst <= '1'; wait for 2*clk_period; rst <= '0';
 
@@ -112,8 +107,7 @@ begin
             end if;
 
             reg_data1_in <= std_logic_vector(to_signed(rand_A, 32));
-            reg_data2_in <= std_logic_vector(to_signed(rand_B, 32));
-            instr        <= std_logic_vector(to_unsigned(i, 32));
+            reg_data2_in <= std_logic_vector(to_signed(rand_B, 32));          
             rd_in <= std_logic_vector(to_unsigned(i mod 32, 5));
             reg_write_in <= '1';
             mem_read_in  <= '0';
@@ -160,12 +154,14 @@ begin
 
 
             wait for clk_period;
-
-            if result_out = expected_result and instr_out = instr and 
-               reg_write_out = reg_write_in and mem_read_out = mem_read_in and mem_write_out = mem_write_in then
+            -- make sure result from the module and the expected value match out.
+            -- Also, check what comes in comes out
+            if result_out = expected_result and reg_write_out = reg_write_in and 
+                mem_read_out = mem_read_in and mem_write_out = mem_write_in then
                 pass_count := pass_count + 1;
             else
                 fail_count := fail_count + 1;
+                -- show which value went wrong
                 report "TEST FAIL!" severity warning;
                 report "    F3             : " & integer'image(to_integer(unsigned(f3_in)));
                 report "    F7             : " & integer'image(to_integer(unsigned(f7_in)));
@@ -173,11 +169,7 @@ begin
                 report "    Input B        : " & integer'image(to_integer(signed(reg_data2_in)));
                 report "    Expected Output: " & integer'image(to_integer(unsigned(expected_result)));
                 report "    Actual Output  : " & integer'image(to_integer(unsigned(result_out)));
-
-                 if instr_out /= instr then
-                    report "    MISMATCH: instr_out /= instr_in" severity warning;
-                    fail_instr_out := fail_instr_out + 1;
-                end if;             
+                -- for narrowing down the bugs       
                 if rd_out /= rd_in then
                     report "    MISMATCH: rd_out /= rd_in" severity warning;
                 end if;
@@ -193,7 +185,7 @@ begin
                     report "    MISMATCH: mem_write_out /= mem_write_in" severity warning;
                     fail_mem_write_out := fail_mem_write_out + 1;
                 end if;
-                
+                -- for narrowing down the bugs
                 case f3_in is
                     when "000" => 
                         if f7_in = "0000000" then 
@@ -234,8 +226,7 @@ begin
         report "SRL  fails: " & integer'image(fail_srl);
         report "SRA  fails: " & integer'image(fail_sra);
         report "OR   fails: " & integer'image(fail_or);
-        report "AND  fails: " & integer'image(fail_and);
-        report "instr_out mismatches     : " & integer'image(fail_instr_out);
+        report "AND  fails: " & integer'image(fail_and);    
         report "reg_write_out mismatches : " & integer'image(fail_reg_write_out);
         report "mem_read_out mismatches  : " & integer'image(fail_mem_read_out);
         report "mem_write_out mismatches : " & integer'image(fail_mem_write_out);

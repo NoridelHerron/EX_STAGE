@@ -15,8 +15,7 @@ entity EX_STAGE is
         clk           : in  std_logic;
         rst           : in  std_logic;
 
-        -- Inputs from ID/EX
-        instr_in      : in  std_logic_vector(31 downto 0);
+        -- Inputs from ID/EX       
         reg_data1_in  : in  std_logic_vector(31 downto 0);
         reg_data2_in  : in  std_logic_vector(31 downto 0);
         f3_in         : in  std_logic_vector(2 downto 0);
@@ -26,8 +25,7 @@ entity EX_STAGE is
         mem_write_in  : in  std_logic;
         rd_in         : in  std_logic_vector(4 downto 0);
 
-        -- Outputs to MEM stage
-        instr_out     : out std_logic_vector(31 downto 0);
+        -- Outputs to MEM stage    
         result_out    : out std_logic_vector(31 downto 0);
         Z_flag_out    : out std_logic;
         V_flag_out    : out std_logic;
@@ -56,8 +54,7 @@ architecture behavior of EX_STAGE is
         );
     end component;
 
-    -- Internal pipeline registers (EX/MEM)
-    signal instr_reg      : std_logic_vector(31 downto 0);
+    -- Internal pipeline registers (EX/MEM)   
     signal result_reg     : std_logic_vector(31 downto 0);
     signal Z_flag_reg     : std_logic;
     signal V_flag_reg     : std_logic;
@@ -87,8 +84,8 @@ begin
     -- Pipeline register for EX/MEM
     process(clk, rst)
     begin
-        if rst = '1' then
-            instr_reg      <= (others => '0');
+        if rst = '1' then  
+            -- value will reset         
             result_reg     <= (others => '0');
             Z_flag_reg     <= '0';
             V_flag_reg     <= '0';
@@ -100,7 +97,7 @@ begin
             rd_reg         <= (others => '0');
 
         elsif rising_edge(clk) then
-            instr_reg      <= instr_in;
+            -- update on the rising edge
             result_reg     <= alu_result;
             Z_flag_reg     <= Z_flag_wire;
             V_flag_reg     <= V_flag_wire;
@@ -114,7 +111,6 @@ begin
     end process;
 
     -- Output assignments
-    instr_out     <= instr_reg;
     result_out    <= result_reg;
     Z_flag_out    <= Z_flag_reg;
     V_flag_out    <= V_flag_reg;
