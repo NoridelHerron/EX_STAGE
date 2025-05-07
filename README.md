@@ -7,6 +7,8 @@ The **EX_STAGE** module represents the Execution stage of a 5-stage pipelined RI
 - Interfaces directly with the ALU for performing R-type and I-type operations
 - Supports all RISC-V ALU operations using funct3 and funct7
 - Computes result and sets condition flags (Z, V, C, N)
+Note: Check the link to see how the flags are implemented.
+https://github.com/NoridelHerron/ALU_with_testBenches_vhdl/blob/main/README.md
 - Registers all outputs including instruction and control signals (mem_read, mem_write, reg_write)
 - Prepares data and control handoff to the MEM stage through EX/MEM pipeline registers
 
