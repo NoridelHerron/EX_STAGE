@@ -7,16 +7,14 @@ The **EX_STAGE** module represents the Execution stage of a 5-stage pipelined RI
 - Interfaces directly with the ALU for performing R-type and I-type operations
 - Supports all RISC-V ALU operations using funct3 and funct7
 - Computes result and sets condition flags (Z, V, C, N)
-- Registers all outputs including instruction and control signals (mem_read, mem_write, reg_write)
-- Prepares data and control handoff to the MEM stage through EX/MEM pipeline registers
+- pass through register destination and control signal opcode for the next stage.
+- Prepares data for the MEM stage through EX/MEM pipeline registers.
 
 ## Project Structure
 **EX_STAGE**/
 - images/
-    - tcl_5000cases.png
-    - tcl_1000cases.png
-    - wave_1000cases.png
-    - wave_5000cases.png
+    - tcl.png
+    - wave.png
 - src/
     - EX_STAGE.vhd
     - adder_32bits.vhd
@@ -47,13 +45,11 @@ The testbench uses randomized testing to evaluate all supported ALU operations o
 
 ## Simulation Results
 ### Tcl Console Output
-![Tcl Output – 5000 Cases](images/tcl_1000cases.png)  
-![Tcl Output – 5000 Cases](images/tcl_5000cases.png)  
-*1000 and 5000 randomized tests passed with no failures. All control and data signals behaved as expected.*
+![Tcl Output – 5000 Cases](images/tcl.png)  
+*5000 randomized tests passed.*
 ### Waveform Example
-![Waveform Example](images/wave_1000cases.png)  
-![Waveform Example](images/wave_5000cases.png)  
-*Waveform shows result_out, flag outputs, and correct instruction/control signal propagation from EX to MEM stage.*
+![Waveform Example](images/wave.png)   
+*Successful pass through, where rd_in = rd_out and op_in = op_out.*
 
 ## How to Run
 1. Launch **Vivado 2019** or newer

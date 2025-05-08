@@ -18,11 +18,9 @@ entity EX_STAGE is
         -- Inputs from ID/EX       
         reg_data1_in  : in  std_logic_vector(31 downto 0);
         reg_data2_in  : in  std_logic_vector(31 downto 0);
+        op_in         : in  std_logic_vector(2 downto 0);
         f3_in         : in  std_logic_vector(2 downto 0);
-        f7_in         : in  std_logic_vector(6 downto 0);
-        reg_write_in  : in  std_logic;
-        mem_read_in   : in  std_logic;
-        mem_write_in  : in  std_logic;
+        f7_in         : in  std_logic_vector(6 downto 0); 
         rd_in         : in  std_logic_vector(4 downto 0);
 
         -- Outputs to MEM stage    
@@ -31,9 +29,9 @@ entity EX_STAGE is
         V_flag_out    : out std_logic;
         C_flag_out    : out std_logic;
         N_flag_out    : out std_logic;
-        reg_write_out : out std_logic;
-        mem_read_out  : out std_logic;
-        mem_write_out : out std_logic;
+        
+        -- pass through the next stage
+        op_out        : out  std_logic_vector(2 downto 0);
         rd_out        : out std_logic_vector(4 downto 0)
     );
 end EX_STAGE;
@@ -60,9 +58,7 @@ architecture behavior of EX_STAGE is
     signal V_flag_reg     : std_logic;
     signal C_flag_reg     : std_logic;
     signal N_flag_reg     : std_logic;
-    signal reg_write_reg  : std_logic;
-    signal mem_read_reg   : std_logic;
-    signal mem_write_reg  : std_logic;
+    signal op_reg         : std_logic_vector(2 downto 0);
     signal rd_reg         : std_logic_vector(4 downto 0);
 
     -- ALU wires
@@ -91,10 +87,7 @@ begin
             V_flag_reg     <= '0';
             C_flag_reg     <= '0';
             N_flag_reg     <= '0';
-            reg_write_reg  <= '0';
-            mem_read_reg   <= '0';
-            mem_write_reg  <= '0';
-            rd_reg         <= (others => '0');
+            op_reg         <= "000";     
 
         elsif rising_edge(clk) then
             -- update on the rising edge
@@ -103,9 +96,7 @@ begin
             V_flag_reg     <= V_flag_wire;
             C_flag_reg     <= C_flag_wire;
             N_flag_reg     <= N_flag_wire;
-            reg_write_reg  <= reg_write_in;
-            mem_read_reg   <= mem_read_in;
-            mem_write_reg  <= mem_write_in;
+            op_reg         <= op_in;
             rd_reg         <= rd_in;
         end if;
     end process;
@@ -116,9 +107,7 @@ begin
     V_flag_out    <= V_flag_reg;
     C_flag_out    <= C_flag_reg;
     N_flag_out    <= N_flag_reg;
-    reg_write_out <= reg_write_reg;
-    mem_read_out  <= mem_read_reg;
-    mem_write_out <= mem_write_reg;
+    op_out        <= op_reg;
     rd_out        <= rd_reg;
 
 end behavior;
