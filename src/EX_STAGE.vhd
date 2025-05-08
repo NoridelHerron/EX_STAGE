@@ -1,4 +1,4 @@
----------------------------------------------------------------------------------- 
+----------------------------------------------------------------------------------
 -- Author      : Noridel Herron
 -- Date        : 5/4/25
 -- Description : Execution (EX) Stage with EX/MEM pipeline register
@@ -29,7 +29,8 @@ entity EX_STAGE is
         V_flag_out    : out std_logic;
         C_flag_out    : out std_logic;
         N_flag_out    : out std_logic;
-        
+        write_data_out: out std_logic_vector(31 downto 0); -- Pass reg_data2 for store instructions
+
         -- pass through the next stage
         op_out        : out  std_logic_vector(2 downto 0);
         rd_out        : out std_logic_vector(4 downto 0)
@@ -60,6 +61,7 @@ architecture behavior of EX_STAGE is
     signal N_flag_reg     : std_logic;
     signal op_reg         : std_logic_vector(2 downto 0);
     signal rd_reg         : std_logic_vector(4 downto 0);
+    signal write_data_reg : std_logic_vector(31 downto 0);
 
     -- ALU wires
     signal alu_result     : std_logic_vector(31 downto 0);
@@ -88,6 +90,8 @@ begin
             C_flag_reg     <= '0';
             N_flag_reg     <= '0';
             op_reg         <= "000";     
+            rd_reg         <= (others => '0');
+            write_data_reg <= (others => '0');
 
         elsif rising_edge(clk) then
             -- update on the rising edge
@@ -98,16 +102,18 @@ begin
             N_flag_reg     <= N_flag_wire;
             op_reg         <= op_in;
             rd_reg         <= rd_in;
+            write_data_reg <= reg_data2_in; -- Capture rs2 value
         end if;
     end process;
 
     -- Output assignments
-    result_out    <= result_reg;
-    Z_flag_out    <= Z_flag_reg;
-    V_flag_out    <= V_flag_reg;
-    C_flag_out    <= C_flag_reg;
-    N_flag_out    <= N_flag_reg;
-    op_out        <= op_reg;
-    rd_out        <= rd_reg;
+    result_out     <= result_reg;
+    Z_flag_out     <= Z_flag_reg;
+    V_flag_out     <= V_flag_reg;
+    C_flag_out     <= C_flag_reg;
+    N_flag_out     <= N_flag_reg;
+    op_out         <= op_reg;
+    rd_out         <= rd_reg;
+    write_data_out <= write_data_reg;
 
 end behavior;

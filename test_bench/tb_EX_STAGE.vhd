@@ -3,6 +3,7 @@
 -- Date        : 5/4/2025
 -- Description : Cleaned-up and complete test bench for EX_STAGE.vhd
 ----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -35,6 +36,7 @@ architecture sim of tb_EX_STAGE is
                 V_flag_out    : out std_logic;
                 C_flag_out    : out std_logic;
                 N_flag_out    : out std_logic;
+                write_data_out: out std_logic_vector(31 downto 0); -- Pass reg_data2 for store instructions
                 
                 -- pass through the next stage
                 op_out        : out  std_logic_vector(2 downto 0);
@@ -54,12 +56,13 @@ architecture sim of tb_EX_STAGE is
     signal rd_out                       : std_logic_vector(4 downto 0) := (others => '0');
     signal result_out                   : std_logic_vector(31 downto 0):= (others => '0'); 
     signal Z_flag, V_flag, C_flag, N_flag : std_logic;
+    signal write_data_out               : std_logic_vector(31 downto 0);
 
 begin
 
     uut: EX_STAGE port map (
         clk, rst, reg_data1_in, reg_data2_in, op_in, f3_in, f7_in, rd_in,
-        result_out, Z_flag, V_flag, C_flag, N_flag, op_out, rd_out);
+        result_out, Z_flag, V_flag, C_flag, N_flag, write_data_out, op_out, rd_out);
 
     clk_process : process
     begin
@@ -68,8 +71,8 @@ begin
             clk <= '1'; wait for clk_period/2;
         end loop;
     end process;
-
-     process
+    
+    process
         -- For generated value
         variable rand_real : real;
         variable seed1 : positive := 42;
