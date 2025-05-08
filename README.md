@@ -7,6 +7,7 @@ The **EX_STAGE** module represents the Execution stage of a 5-stage pipelined RI
 - Interfaces directly with the ALU for performing operations
 - Supports all RISC-V ALU operations using funct3 and funct7
 - Computes result and sets condition flags (Z, V, C, N)
+
 *Note: Check the link to see how the flags are implemented.
 https://github.com/NoridelHerron/ALU_with_testBenches_vhdl/blob/main/README.md*
 - pass through register destination and control signal opcode for the next stage.
@@ -33,13 +34,12 @@ https://github.com/NoridelHerron/ALU_with_testBenches_vhdl/blob/main/README.md*
 The testbench uses randomized testing to evaluate all supported ALU operations over 5000 input cases. It:
 - Randomly generates inputs for operands A and B, funct3, and funct7
 - Calculates expected output in software and compares it with hardware ALU output
-- Validates instruction passthrough and control signal propagation.
+- Make sure rd_in = rd_out and op_in and op_out.
 - Tracks test statistics including per-operation failure counts and signal mismatches
-- Provides clear feedback through the Tcl Console for debugging.
+- Provides clear feedback through the Tcl Console for debugging and adjust clk for wave debugging.
 
 ## Key Learnings
 - Gained hands-on experience designing and testing a pipelined CPU execution stage
-- Improved understanding of condition flag handling and ALU operation decoding
 - Reinforced the importance of modular design for future extensions (hazard detection, forwarding, etc.)
 - Learned the importance of passing the signal through each stage to maintain the pipeline integrity.
 
