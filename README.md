@@ -4,18 +4,13 @@
 The **EX_STAGE** module represents the Execution stage of a 5-stage pipelined RISC-V CPU. It performs all arithmetic and logic operations using an ALU and passes the results, flags, and control signals to the MEM stage. It registers all inputs and outputs to support stable pipeline progression, forwarding, and hazard detection in future extensions.
 
 ## Features
-- Interfaces directly with the ALU for performing R-type and I-type operations
+- Interfaces directly with the ALU for performing operations
 - Supports all RISC-V ALU operations using funct3 and funct7
 - Computes result and sets condition flags (Z, V, C, N)
-<<<<<<< HEAD
+*Note: Check the link to see how the flags are implemented.
+https://github.com/NoridelHerron/ALU_with_testBenches_vhdl/blob/main/README.md*
 - pass through register destination and control signal opcode for the next stage.
 - Prepares data for the MEM stage through EX/MEM pipeline registers.
-=======
-Note: Check the link to see how the flags are implemented.
-https://github.com/NoridelHerron/ALU_with_testBenches_vhdl/blob/main/README.md
-- Registers all outputs including instruction and control signals (mem_read, mem_write, reg_write)
-- Prepares data and control handoff to the MEM stage through EX/MEM pipeline registers
->>>>>>> 0d3e807080a5bd35f29f3bae5a26450a534c7dea
 
 ## Project Structure
 **EX_STAGE**/
@@ -38,15 +33,13 @@ https://github.com/NoridelHerron/ALU_with_testBenches_vhdl/blob/main/README.md
 The testbench uses randomized testing to evaluate all supported ALU operations over 5000 input cases. It:
 - Randomly generates inputs for operands A and B, funct3, and funct7
 - Calculates expected output in software and compares it with hardware ALU output
-- Validates instruction passthrough and control signal propagation (reg_write, mem_read, mem_write)
+- Validates instruction passthrough and control signal propagation.
 - Tracks test statistics including per-operation failure counts and signal mismatches
-- Provides clear feedback through the Tcl Console for debugging
+- Provides clear feedback through the Tcl Console for debugging.
 
 ## Key Learnings
 - Gained hands-on experience designing and testing a pipelined CPU execution stage
-- Learned how to manage control signal registration across pipeline boundaries
 - Improved understanding of condition flag handling and ALU operation decoding
-- Applied effective testbench strategies using randomized and edge-case generation
 - Reinforced the importance of modular design for future extensions (hazard detection, forwarding, etc.)
 - Learned the importance of passing the signal through each stage to maintain the pipeline integrity.
 
