@@ -29,6 +29,7 @@ architecture sim of tb_EX_STAGE is
                 f3_in         : in  std_logic_vector(2 downto 0);
                 f7_in         : in  std_logic_vector(6 downto 0); 
                 rd_in         : in  std_logic_vector(4 downto 0);
+                store_rs2_in  : in  std_logic_vector(31 downto 0);
         
                 -- Outputs to MEM stage    
                 result_out    : out std_logic_vector(31 downto 0);
@@ -36,18 +37,19 @@ architecture sim of tb_EX_STAGE is
                 V_flag_out    : out std_logic;
                 C_flag_out    : out std_logic;
                 N_flag_out    : out std_logic;
-                write_data_out: out std_logic_vector(31 downto 0); -- Pass reg_data2 for store instructions
+                write_data_out: out std_logic_vector(31 downto 0);
                 
                 -- pass through the next stage
                 op_out        : out  std_logic_vector(2 downto 0);
-                rd_out        : out std_logic_vector(4 downto 0)
+                rd_out        : out std_logic_vector(4 downto 0);
+                store_rs2_out : out std_logic_vector(31 downto 0)
         );
     end component;
 
     signal clk, rst : std_logic := '0';
     constant clk_period : time := 10 ns;
 
-    signal reg_data1_in, reg_data2_in   : std_logic_vector(31 downto 0):= (others => '0');
+    signal reg_data1_in, reg_data2_in, store_rs2_in : std_logic_vector(31 downto 0):= (others => '0');
     signal f3_in                        : std_logic_vector(2 downto 0) := (others => '0');
     signal f7_in                        : std_logic_vector(6 downto 0) := (others => '0');
     signal op_in                        : std_logic_vector(2 downto 0) := (others => '0');
@@ -56,13 +58,13 @@ architecture sim of tb_EX_STAGE is
     signal rd_out                       : std_logic_vector(4 downto 0) := (others => '0');
     signal result_out                   : std_logic_vector(31 downto 0):= (others => '0'); 
     signal Z_flag, V_flag, C_flag, N_flag : std_logic;
-    signal write_data_out               : std_logic_vector(31 downto 0);
+    signal write_data_out, store_rs2_out : std_logic_vector(31 downto 0);
 
 begin
 
     uut: EX_STAGE port map (
-        clk, rst, reg_data1_in, reg_data2_in, op_in, f3_in, f7_in, rd_in,
-        result_out, Z_flag, V_flag, C_flag, N_flag, write_data_out, op_out, rd_out);
+        clk, rst, reg_data1_in, reg_data2_in, op_in, f3_in, f7_in, rd_in, store_rs2_in,
+        result_out, Z_flag, V_flag, C_flag, N_flag, write_data_out, op_out, rd_out, store_rs2_out);
 
     clk_process : process
     begin
@@ -71,6 +73,7 @@ begin
             clk <= '1'; wait for clk_period/2;
         end loop;
     end process;
+
     
     process
         -- For generated value
@@ -230,8 +233,8 @@ begin
             end if;
             
             -- Keep track the number of pass or fail
-            if result_out = expected_result and Z_flag = expected_zf and
-               N_flag = expected_nf and V_flag = expected_vf and C_flag = expected_cf then
+            if result_out = expected_result and Z_flag = expected_zf and store_rs2_in = store_rs2_out
+               and N_flag = expected_nf and V_flag = expected_vf and C_flag = expected_cf then
                 pass_count := pass_count + 1;
             else
                 fail_count := fail_count + 1;

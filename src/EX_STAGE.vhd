@@ -1,4 +1,3 @@
-----------------------------------------------------------------------------------
 -- Author      : Noridel Herron
 -- Date        : 5/4/25
 -- Description : Execution (EX) Stage with EX/MEM pipeline register
@@ -22,7 +21,8 @@ entity EX_STAGE is
         f3_in         : in  std_logic_vector(2 downto 0);
         f7_in         : in  std_logic_vector(6 downto 0); 
         rd_in         : in  std_logic_vector(4 downto 0);
-
+        store_rs2_in  : in  std_logic_vector(31 downto 0);
+        
         -- Outputs to MEM stage    
         result_out    : out std_logic_vector(31 downto 0);
         Z_flag_out    : out std_logic;
@@ -33,7 +33,8 @@ entity EX_STAGE is
 
         -- pass through the next stage
         op_out        : out  std_logic_vector(2 downto 0);
-        rd_out        : out std_logic_vector(4 downto 0)
+        rd_out        : out std_logic_vector(4 downto 0);
+        store_rs2_out : out std_logic_vector(31 downto 0)
     );
 end EX_STAGE;
 
@@ -62,6 +63,7 @@ architecture behavior of EX_STAGE is
     signal op_reg         : std_logic_vector(2 downto 0);
     signal rd_reg         : std_logic_vector(4 downto 0);
     signal write_data_reg : std_logic_vector(31 downto 0);
+    signal store_rs2_reg  : std_logic_vector(31 downto 0);
 
     -- ALU wires
     signal alu_result     : std_logic_vector(31 downto 0);
@@ -92,6 +94,7 @@ begin
             op_reg         <= "000";     
             rd_reg         <= (others => '0');
             write_data_reg <= (others => '0');
+            store_rs2_reg  <= (others => '0');
 
         elsif rising_edge(clk) then
             -- update on the rising edge
@@ -103,6 +106,7 @@ begin
             op_reg         <= op_in;
             rd_reg         <= rd_in;
             write_data_reg <= reg_data2_in; -- Capture rs2 value
+            store_rs2_reg  <= store_rs2_in;
         end if;
     end process;
 
@@ -115,5 +119,6 @@ begin
     op_out         <= op_reg;
     rd_out         <= rd_reg;
     write_data_out <= write_data_reg;
+    store_rs2_out  <= store_rs2_reg;
 
 end behavior;
