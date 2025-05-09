@@ -9,20 +9,17 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use IEEE.MATH_REAL.ALL;
 
-library work;
-use work.func_prototype.all;
-
+--no port needed
 entity tb_EX_STAGE is
 end tb_EX_STAGE;
 
 architecture sim of tb_EX_STAGE is
 
     component EX_STAGE
-         Port (
-                clk           : in  std_logic;
+         Port ( clk           : in  std_logic;
                 rst           : in  std_logic;
         
-                -- Inputs from ID/EX       
+                -- Inputs from Decoder (ID)     
                 reg_data1_in  : in  std_logic_vector(31 downto 0);
                 reg_data2_in  : in  std_logic_vector(31 downto 0);
                 op_in         : in  std_logic_vector(2 downto 0);
@@ -30,41 +27,43 @@ architecture sim of tb_EX_STAGE is
                 f7_in         : in  std_logic_vector(6 downto 0); 
                 rd_in         : in  std_logic_vector(4 downto 0);
                 store_rs2_in  : in  std_logic_vector(31 downto 0);
-        
+               
                 -- Outputs to MEM stage    
                 result_out    : out std_logic_vector(31 downto 0);
                 Z_flag_out    : out std_logic;
                 V_flag_out    : out std_logic;
                 C_flag_out    : out std_logic;
                 N_flag_out    : out std_logic;
-                write_data_out: out std_logic_vector(31 downto 0);
-                
+               
+                -- Pass reg_data2 for store instructions
+                write_data_out: out std_logic_vector(31 downto 0); 
+        
                 -- pass through the next stage
                 op_out        : out  std_logic_vector(2 downto 0);
-                rd_out        : out std_logic_vector(4 downto 0);
-                store_rs2_out : out std_logic_vector(31 downto 0)
-        );
+                rd_out        : out std_logic_vector(4 downto 0) );
     end component;
 
     signal clk, rst : std_logic := '0';
     constant clk_period : time := 10 ns;
-
-    signal reg_data1_in, reg_data2_in, store_rs2_in : std_logic_vector(31 downto 0):= (others => '0');
-    signal f3_in                        : std_logic_vector(2 downto 0) := (others => '0');
-    signal f7_in                        : std_logic_vector(6 downto 0) := (others => '0');
-    signal op_in                        : std_logic_vector(2 downto 0) := (others => '0');
-    signal op_out                       : std_logic_vector(2 downto 0) := (others => '0');
-    signal rd_in                        : std_logic_vector(4 downto 0) := (others => '0');
-    signal rd_out                       : std_logic_vector(4 downto 0) := (others => '0');
-    signal result_out                   : std_logic_vector(31 downto 0):= (others => '0'); 
+    
+    -- Internal signal
+    signal reg_data1_in, reg_data2_in     : std_logic_vector(31 downto 0):= (others => '0');
+    signal f3_in                          : std_logic_vector(2 downto 0) := (others => '0');
+    signal f7_in                          : std_logic_vector(6 downto 0) := (others => '0');
+    signal op_in                          : std_logic_vector(2 downto 0) := (others => '0');
+    signal op_out                         : std_logic_vector(2 downto 0) := (others => '0');
+    signal rd_in                          : std_logic_vector(4 downto 0) := (others => '0');
+    signal rd_out                         : std_logic_vector(4 downto 0) := (others => '0');
+    signal result_out                     : std_logic_vector(31 downto 0):= (others => '0'); 
     signal Z_flag, V_flag, C_flag, N_flag : std_logic;
-    signal write_data_out, store_rs2_out : std_logic_vector(31 downto 0);
+    signal write_data_out, store_rs2_in   : std_logic_vector(31 downto 0);
 
 begin
 
-    uut: EX_STAGE port map (
-        clk, rst, reg_data1_in, reg_data2_in, op_in, f3_in, f7_in, rd_in, store_rs2_in,
-        result_out, Z_flag, V_flag, C_flag, N_flag, write_data_out, op_out, rd_out, store_rs2_out);
+    -- Module under test
+    uut: EX_STAGE port map ( clk, rst, reg_data1_in, reg_data2_in, op_in, 
+                            f3_in, f7_in, rd_in, store_rs2_in, result_out, 
+                            Z_flag, V_flag, C_flag, N_flag, write_data_out, op_out, rd_out);
 
     clk_process : process
     begin
@@ -76,7 +75,7 @@ begin
 
     
     process
-        -- For generated value
+        -- For generating value
         variable rand_real : real;
         variable seed1 : positive := 42;
         variable seed2 : positive := 24;
@@ -92,6 +91,7 @@ begin
         
         -- Number of test
         variable total_tests : integer := 5000;
+        
         -- Keep track of the test
         variable pass_count, fail_count : integer := 0;
         variable fail_add, fail_sub, fail_sll, fail_slt, fail_sltu, fail_xor, fail_srl, fail_sra, fail_or, fail_and : integer := 0;
@@ -233,11 +233,13 @@ begin
             end if;
             
             -- Keep track the number of pass or fail
-            if result_out = expected_result and Z_flag = expected_zf and store_rs2_in = store_rs2_out
-               and N_flag = expected_nf and V_flag = expected_vf and C_flag = expected_cf then
+            if result_out = expected_result and Z_flag = expected_zf and store_rs2_in = write_data_out
+               and N_flag = expected_nf and V_flag = expected_vf and C_flag = expected_cf and op_in = op_out then
                 pass_count := pass_count + 1;
             else
                 fail_count := fail_count + 1;
+                
+                -- Narrow down the bugs
                 if Z_flag /= expected_zf then fail_zf := fail_zf + 1; assert false report "Z flag mismatch" severity warning; end if;
                 if N_flag /= expected_nf then fail_nf := fail_nf + 1; assert false report "N flag mismatch" severity warning; end if;
                 if f3_in = "000" then

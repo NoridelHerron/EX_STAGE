@@ -16,15 +16,11 @@ https://github.com/NoridelHerron/ALU_with_testBenches_vhdl/blob/main/README.md*
 ## Project Structure
 **EX_STAGE**/
 - images/
-    - tcl.png
-    - wave.png
+    - tcl.png, wave.png
 - src/
-    - EX_STAGE.vhd
-    - adder_32bits.vhd
-    - ALU_32bits.vhd
-    - FullAdder.vhd
-    - FullSubtractor.vhd
-    - sub_32bits.vhd
+    - EX_STAGE.vhd, ALU_32bits.vhd
+    - adder_32bits.vhd, FullAdder.vhd 
+    - sub_32bits.vhd, FullSubtractor.vhd
 - test_benches/
     - tb_EX_STAGE.vhd
 - .gitignore/
